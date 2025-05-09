@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* 
+    this is where we should add stuff like how big the grid is for the calendar days 
+    and other typical style/graphics stuff that will be used to set up the calendar
+*/
