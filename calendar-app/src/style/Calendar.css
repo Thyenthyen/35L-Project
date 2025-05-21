@@ -1,0 +1,119 @@
+/* Container for the entire calendar layout */
+.calendar-container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar on the left */
+.sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
+
+.sidebar button {
+  margin-top: 20px;
+  padding: 10px 16px;
+  font-size: 16px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sidebar button:hover {
+  background-color: #27ae60;
+}
+
+/* Main calendar section */
+.main-calendar {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-width: 100vh;   
+  margin: 0 auto;    
+}
+
+/* Header containing month name and buttons */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.month-title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+/* Navigation buttons */
+.month-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.month-buttons button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.month-buttons button:hover {
+  background-color: #2980b9;
+}
+
+/* Calendar grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  width: 100%;
+}
+
+.day, .epmty{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  padding: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.day:hover {
+  background-color: #f0f8ff;
+}
+
+.calendar-grid-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 5px;
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+}
+
+.weekday {
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
