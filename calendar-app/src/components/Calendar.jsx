@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../style/Calendar.css';
 
 function Calendar() {
@@ -8,7 +8,15 @@ function Calendar() {
   const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({ 
     title: ' ',
-    date: ' '});
+    date: ' '
+  });
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then((res) => res.json())
+      .then((data) => setEvents(data))
+      .catch((err) => console.error('Error fetching events:', err));
+  }, []);
 
   const handleCreateEvent = () => {
     //alert('Create new event');
@@ -20,9 +28,14 @@ function Calendar() {
   };
 
   const handleDayClick = (day) => {
-    alert(`Clicked day ${day}`);
+    //alert(`Clicked day ${day}`);
     const clickDate = new Date(date.getFullYear(), date.getMonth(), day);
     setSelectDate(formatDate(clickDate));
+    setShowEvent(true);
+    setNewEvent ({
+      title: ' ',
+      date: formatDate(clickDate)
+    });
   };
 
   // i need own code for this call 
@@ -35,13 +48,28 @@ function Calendar() {
     setNewEvent(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmitEvent = (client) => {
+  const handleSubmitEvent = async (client) => {
     client.preventDefault();
     if (newEvent.title && newEvent.date) {
-      setEvents([...events, newEvent]);
-      setShowEvent(false);
-      setNewEvent({ title: ' ', date: ' '});
-      alert(`Event "${newEvent.title}" created for ${newEvent.date}`);
+      fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEvent)
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error(`Server error ${res.status}`);
+          return res.json();
+        })
+        .then((savedEvent) => {
+          setEvents([...events, savedEvent]);
+          setShowEvent(false);
+          setNewEvent({ title: '', date: '' });
+          alert(`Event "${savedEvent.title}" created for ${savedEvent.date}`);
+        })
+        .catch((error) => {
+          console.error('Failed to save event:', error);
+          alert('Failed to save event. See console for details.');
+        });
     }
   }; 
 
