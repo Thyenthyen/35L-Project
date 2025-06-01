@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../style/Calendar.css';
 
-function Calendar() {
+function Calendar({user}) {
   const [date, setDate] = useState(new Date());
   const [showEvent, setShowEvent] = useState(false);
   const [selectDate, setSelectDate] = useState(null);
@@ -12,11 +12,13 @@ function Calendar() {
   });
 
   useEffect(() => {
-    fetch('/api/events')
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.error('Error fetching events:', err));
-  }, []);
+    if (user && user._id) {
+      fetch(`/api/events?userId=${user._id}`)
+        .then((res) => res.json())
+        .then((data) => setEvents(data))
+        .catch((err) => console.error('Error fetching events:', err));
+    }
+  }, [user]);
 
   const handleCreateEvent = () => {
     //alert('Create new event');
@@ -54,7 +56,7 @@ function Calendar() {
       fetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newEvent)
+        body: JSON.stringify({ ...newEvent, userId: user._id })
       })
         .then((res) => {
           if (!res.ok) throw new Error(`Server error ${res.status}`);
