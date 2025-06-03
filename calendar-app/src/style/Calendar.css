@@ -117,3 +117,24 @@
   padding: 5px 0;
   border-bottom: 1px solid #ddd;
 }
+
+/* Search bar */ 
+.search-container {
+  margin: 15px 0;
+}
+
+.search-container input {
+  width: 85%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;;
+}
+
+/* Dot on all days that have event */ 
+.event-indicator {
+  width: 6px;
+  height: 6px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
