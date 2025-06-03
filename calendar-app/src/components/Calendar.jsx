@@ -6,19 +6,35 @@ function Calendar({user}) {
   const [showEvent, setShowEvent] = useState(false);
   const [selectDate, setSelectDate] = useState(null);
   const [events, setEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({ 
     title: ' ',
     date: ' '
   });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (user && user._id) {
       fetch(`/api/events?userId=${user._id}`)
         .then((res) => res.json())
-        .then((data) => setEvents(data))
+        .then((data) => { setEvents(data);
+                          setAllEvents(data)}) // add new state var for allEvents to store all not filtered
         .catch((err) => console.error('Error fetching events:', err));
     }
   }, [user]);
+
+  //Search functonality 
+  useEffect(() => {
+    if (searchTerm.trim() === ''){
+      setEvents(allEvents);
+    }else{
+      const filtered = allEvents.filter(event =>
+        event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        event.date.includes(searchTerm)
+      );
+      setEvents(filtered);
+    }
+  }, [searchTerm, allEvents]);
 
   const handleCreateEvent = () => {
     //alert('Create new event');
@@ -62,8 +78,10 @@ function Calendar({user}) {
           if (!res.ok) throw new Error(`Server error ${res.status}`);
           return res.json();
         })
-        .then((savedEvent) => {
-          setEvents([...events, savedEvent]);
+        .then((savedEvent) => { // fixed for search feature
+          const updatedEvents = [...allEvents, savedEvent]; 
+          setEvents(updatedEvents);
+          setAllEvents(updatedEvents);
           setShowEvent(false);
           setNewEvent({ title: '', date: '' });
           alert(`Event "${savedEvent.title}" created for ${savedEvent.date}`);
@@ -98,6 +116,17 @@ function Calendar({user}) {
       <div className="sidebar">
         <h2>Calendar</h2>
         <button onClick={handleCreateEvent}>+ Create Event</button>
+
+        {/*Search bar feature*/}
+        <div className="search-container">
+          <input
+          type="text"
+          placeholder="Search events..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         <div className="events-list">
           <h3>UpComing Events</h3>
           {events.length > 0 ? (
@@ -109,7 +138,8 @@ function Calendar({user}) {
               ))}
             </ul>
           ) : (
-            <p>No events scheduled</p>
+            //*fixed to opt no event after search*/
+            <p>{searchTerm ? 'No matching events found' : ' No evnts scheduled'}</p>
           )}
         </div>
       </div>
@@ -148,9 +178,14 @@ function Calendar({user}) {
                 onClick={() => handleDayClick(index + 1)}
               >
                 <strong>{index + 1}</strong>
+                {/*Showed event indicators on calendar days */}
+                {allEvents.filter(event =>
+                  event.date === formatDate(new Date(date.getFullYear(), date.getMonth(), index +1))
+                ).length > 0 && (
+                  <div className="event-indicator"></div>
+                )}
               </div>
-            ))
-          }
+        ))}
         </div>
       </div>
     </div>
