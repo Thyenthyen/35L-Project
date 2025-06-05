@@ -29,13 +29,29 @@ function Login({ onLogin }) {
 
   return (
     <div className="auth-container">
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="username" placeholder="username" value={form.username} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="password" value={form.password} onChange={handleChange} required />
-        <button type="submit">Login</button>
-      </form>
+      <div className="auth-form">
+        <h2>Login Your Personal Calendar</h2>
+        {error && <p className="error">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="username"
+            placeholder="username"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+      </div>
     </div>
   );
 }
