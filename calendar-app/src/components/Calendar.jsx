@@ -8,14 +8,16 @@ function Calendar({user}) {
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({ 
-    title: ' ',
-    date: ' '
+    title: '',
+    date: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (user && user._id) {
-      fetch(`/api/events?userId=${user._id}`)
+      fetch(`/api/events?userId=${user._id}`, {
+        credentials: 'include'
+      })
         .then((res) => res.json())
         .then((data) => { setEvents(data);
                           setAllEvents(data)}) // add new state var for allEvents to store all not filtered
@@ -40,7 +42,7 @@ function Calendar({user}) {
     //alert('Create new event');
     setShowEvent(true);
     setNewEvent ({
-      title: ' ',
+      title: '',
       date: selectDate || formatDate(date)
     });
   };
@@ -51,7 +53,7 @@ function Calendar({user}) {
     setSelectDate(formatDate(clickDate));
     setShowEvent(true);
     setNewEvent ({
-      title: ' ',
+      title: '',
       date: formatDate(clickDate)
     });
   };
@@ -61,18 +63,23 @@ function Calendar({user}) {
     return dateObj.toISOString().split('T')[0];
   }
 
-  const handleInputChange = (client) => {
-    const {name, value} = client.target;
+  const handleInputChange = (e) => {
+    const {name, value} = e.target;
     setNewEvent(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmitEvent = async (client) => {
-    client.preventDefault();
+  const handleSubmitEvent = async (e) => {
+    e.preventDefault();
     if (newEvent.title && newEvent.date) {
       fetch('/api/events', {
         method: 'POST',
+        credentials: 'include', // Add this
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newEvent, userId: user._id })
+        body: JSON.stringify({ 
+          title: newEvent.title, 
+          date: newEvent.date 
+    //...newEvent, userId: user._id <- rm userID here
+        })
       })
         .then((res) => {
           if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -92,6 +99,44 @@ function Calendar({user}) {
         });
     }
   }; 
+
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm('Are you sure to delete this event?')){
+      try {
+        const response = await fetch(`/api/events/${eventId}`,{
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+          'Content-Type': 'application/json'}
+        });
+        
+        // First check if response is HTML
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Server returned: ${text.substring(0, 100)}...`);
+        }
+
+        const result = await response.json(); // Always parse JSON first
+
+        if (!response.ok) {
+          // Show detailed error from server
+        alert(`Delete failed: ${result.error || 'Unknown error'}`);
+        return;
+        }
+        //Update both event states
+        setAllEvents(allEvents.filter(event => event._id !== eventId));
+        setEvents(events.filter(event => event._id !== eventId));
+
+        alert('Event deleted successfully');
+      }
+      catch (error) {
+        // Network errors or JSON parsing errors
+      alert(`Delete failed: ${error.message}`);
+      }
+    }
+  };
+
 
   const currentMonthName = date.toLocaleString('default', {
     month: 'long',
@@ -131,8 +176,8 @@ function Calendar({user}) {
           <h3>UpComing Events</h3>
           {events.length > 0 ? (
             <ul>
-              {events.map((event, index) => (
-                <li key={index}>
+              {events.map((event) => (
+                <li key={event._id}>
                   <strong>{event.date}</strong>: {event.title}
                 </li>
               ))}
@@ -202,7 +247,7 @@ function Calendar({user}) {
               <input
                 type="text"
                 name="title"
-                value={newEvent.title}
+                value={newEvent.title || ''}
                 onChange={handleInputChange}
                 required
               />
@@ -212,7 +257,7 @@ function Calendar({user}) {
               <input
                 type="date"
                 name="date"
-                value={newEvent.date}
+                value={newEvent.date || ''}
                 onChange={handleInputChange}
                 required
               />
